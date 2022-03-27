@@ -45,6 +45,20 @@ class ViewModel {
     }
 
     
+    func registrationUser(login: String, password: String) {
+        if RealmWork.instance.checkLogin(login: login) {
+            RealmWork.instance.replacePassword(login: login, password: password)
+        } else {
+            RealmWork.instance.registrationUser(login: login, password: password)
+        }
+            
+    }
+    
+    
+    
+    func loginUser(login: String, password: String) -> Bool {
+        RealmWork.instance.loginUser(login: login, password: password)
+    }
     
 }
 

@@ -21,6 +21,17 @@ class CoordinateRealm: Object {
 }
 
 
+class User: Object {
+    @objc dynamic var login: String = String()
+    @objc dynamic var password: String = String()
+    
+    override static func primaryKey() -> String? {
+        return "login"
+    }
+    
+}
+
+
 class RealmWork {
     static let instance = RealmWork()
     private init(){}
@@ -45,14 +56,16 @@ class RealmWork {
         do {
             let realm = try Realm()
             
+            let ret = realm.objects(CoordinateRealm.self)
             try! realm.write {
-                realm.deleteAll()
+                realm.delete(ret)
             }
             
         } catch {
             print("􀘰􀘰􀘰 Realm deleteAllItems  error: \(error)")
         }
     }
+    
     
     func readItems() -> [CoordinateRealm] {
         var ret = [CoordinateRealm]()
@@ -66,6 +79,68 @@ class RealmWork {
             print("􀘰􀘰􀘰 Realm readItems error: \(error)")
         }
         
+        return ret
+    }
+    
+    
+    func checkLogin(login: String) -> Bool {
+        var ret = false
+        
+        do {
+            let realm = try Realm()
+            
+            ret = !realm.objects(User.self).filter("login == %@", login).isEmpty
+        } catch {
+            print("􀘰􀘰􀘰 Realm checkLogin error: \(error)")
+        }
+        return ret
+    }
+    
+    
+    func registrationUser(login: String, password: String) {
+        let user = User()
+        user.login = login
+        user.password = password
+
+        do {
+            let realm = try Realm()
+            
+            try! realm.write {
+                realm.add(user)
+                print("add",user)
+            }
+            
+        } catch {
+            print("􀘰􀘰􀘰 Realm registrationUser error: \(error)")
+        }
+    }
+    
+    
+    func replacePassword(login: String, password: String) {
+        do {
+            let realm = try Realm()
+
+            let user = realm.objects(User.self).filter("login == %@", login)
+            try! realm.write {
+                user.setValue(password, forKey: "password")
+            }
+               
+        } catch {
+            print("􀘰􀘰􀘰 Realm replacePassword error: \(error)")
+        }
+    }
+    
+    
+    func loginUser(login: String, password: String) -> Bool {
+        var ret = false
+        do {
+            let realm = try Realm()
+
+            ret = !realm.objects(User.self).filter("login == %@ AND password == %@", login, password).isEmpty
+ 
+        } catch {
+            print("􀘰􀘰􀘰 Realm replacePassword error: \(error)")
+        }
         return ret
     }
     

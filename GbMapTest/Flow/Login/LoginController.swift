@@ -6,9 +6,9 @@
 //
 
 import UIKit
-import Combine
 import RealmSwift
-import SwiftUI
+import RxSwift
+import RxCocoa
 
 class LoginController: UIViewController {
 
@@ -19,12 +19,34 @@ class LoginController: UIViewController {
 
     var onLogin: ((_ login: String, _ passord: String) -> Bool)?
     
-    var cancellable = Set<AnyCancellable>()
-    let passwordPublisher = PassthroughSubject<Bool, Never>()
-    let userNamePublisher = PassthroughSubject<Bool, Never>()
+//    var cancellable = Set<AnyCancellable>()
+//    let passwordPublisher = PassthroughSubject<Bool, Never>()
+//    let userNamePublisher = PassthroughSubject<Bool, Never>()
+
+    let disposeBag = DisposeBag()
+    var passwordPublisher = PublishSubject<Bool>()
+    var userNamePublisher = PublishSubject<Bool>()
+    
+//    var isPasswordView = true
+    let isPasswordView  = BehaviorRelay<Bool>(value: true)
+    
+    @IBOutlet weak var passwordViewButton: UIButton!
+    @IBAction func didPasswordView(_ sender: UIButton) {
+//        isPasswordView.toggle()
+//        let smallSizeImage = UIImage.SymbolConfiguration(scale: .small)
+//        if isPasswordView {
+//            passwordField.isSecureTextEntry = true
+//            sender.setImage(UIImage(systemName: "eye.slash.fill", withConfiguration: smallSizeImage), for: .normal)
+//        } else {
+//            passwordField.isSecureTextEntry = false
+//            sender.setImage(UIImage(systemName: "eye.fill", withConfiguration: smallSizeImage), for: .normal)
+//        }
+    }
+    
     
     @IBOutlet weak var userNameField: UITextField!
     @IBOutlet weak var passwordField: UITextField!
+    
     @IBOutlet weak var gotoTrackButton: UIButton!
     
     @IBOutlet weak var scrollView: UIScrollView!
@@ -76,17 +98,21 @@ class LoginController: UIViewController {
         checkLogin()
         
 //        userNameField.delegate = self
-        userNameField.textPublisher
-//            .map { $0.last }
-//            .compactMap{ $0.flatMap(String.init) }
-            .map { $0 }
-            .sink(receiveValue: { val in
-                print(val)
-                self.autoComplete(textField: self.userNameField, repString: val, arrayComplete: self.autoCompletionPossibilities)
-            })
-            .store(in: &cancellable)
-                     
-     }
+        
+//        userNameField.textPublisher
+////            .map { $0.last }
+////            .compactMap{ $0.flatMap(String.init) }
+//            .map { $0 }
+//            .sink(receiveValue: { val in
+//                print(val)
+//                self.autoComplete(textField: self.userNameField, repString: val, arrayComplete: self.autoCompletionPossibilities)
+//            })
+//            .store(in: &cancellable)
+                
+        passwordViewButtonTap()
+        passwordViewSecureTextEntry()
+    }
+    
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -154,60 +180,74 @@ extension LoginController {
 }
 
 extension LoginController {
-    
+
     func checkLogin() {
-        userNameField.textPublisher
-            .map { $0.count > 3 }
-            .subscribe(userNamePublisher)
-            .store(in: &cancellable)
-         
-        passwordField.textPublisher
-            .map { $0.count > 3 }
-            .subscribe(passwordPublisher)
-            .store(in: &cancellable)
-         
-        Publishers.CombineLatest(userNamePublisher, passwordPublisher)
-            .map { $0 && $1 }
-            .assign(to: \.isEnabled, on: gotoTrackButton)
-            .store(in: &cancellable)
-    }
-     
-}
+//        userNameField.textPublisher
+//            .map { $0.count > 3 }
+//            .subscribe(userNamePublisher)
+//            .store(in: &cancellable)
+//
+//        passwordField.textPublisher
+//            .map { $0.count > 3 }
+//            .subscribe(passwordPublisher)
+//            .store(in: &cancellable)
+//
+//        Publishers.CombineLatest(userNamePublisher, passwordPublisher)
+//            .map { $0 && $1 }
+//            .assign(to: \.isEnabled, on: gotoTrackButton)
+//            .store(in: &cancellable)
 
-extension UITextField {
+        
+        let userNamePublisher = userNameField.rx.text
+            .orEmpty
+            .map {$0.count > 0}
 
-    var textPublisher: AnyPublisher<String, Never> {
-        NotificationCenter.default.publisher(
-            for: UITextField.textDidChangeNotification,
-            object: self
-        )
-        .compactMap { ($0.object as? UITextField)?.text }
-        .eraseToAnyPublisher()
+        let passwordPublisher = passwordField.rx.text
+            .orEmpty
+            .map {$0.count > 0}
+        
+        Observable
+            .combineLatest(userNamePublisher, passwordPublisher) { $0 && $1 }
+            .bind { [weak gotoTrackButton] (bool) in
+                gotoTrackButton?.isEnabled = bool
+            }
+            .disposed(by: disposeBag)
+
     }
-    
 
 }
 
 extension LoginController {
-    
-    func autoComplete(textField: UITextField, repString: String, arrayComplete: [String]) {
-        guard let text = textField.text else { return }
-            let matches = arrayComplete.filter {
-                $0.hasPrefix(repString)
-            }
-
-            if !(matches.isEmpty) {
-                textField.text = matches.first!
-                if let pos = textField.position(from: textField.beginningOfDocument, offset: text.count) {
-                    textField.selectedTextRange = textField.textRange(from: pos, to: textField.endOfDocument)
-                }
-            }
-
+    func passwordViewButtonTap() {
+        passwordViewButton.rx.tap
+            .map{self.isPasswordView.value}
+            .bind(onNext: { [weak isPasswordView] (bool) in
+                isPasswordView?.accept(!bool)
+            } )
+            .disposed(by: disposeBag)
     }
     
+    
+    func passwordViewSecureTextEntry() {
+        enum nameImages: String {
+            case open = "eye.fill"
+            case close = "eye.slash.fill"
+        }
+        
+        isPasswordView
+            .asObservable()
+            .bind(onNext: { [weak passwordField] (bool) in
+                passwordField?.isSecureTextEntry = bool
+                
+                let smallSizeImage = UIImage.SymbolConfiguration(scale: .small)
+                var nameImage = nameImages.open
+                if bool { nameImage = nameImages.close }
+                self.passwordViewButton.setImage(UIImage(systemName: nameImage.rawValue, withConfiguration: smallSizeImage), for: .normal)
+            } )
+            .disposed(by: disposeBag)
+    }
+    
+    
+    
 }
-    
-    
-
-    
 

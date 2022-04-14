@@ -98,6 +98,8 @@ class TrackController: UIViewController {
         super.viewWillAppear(animated)
         mapView.settings.zoomGestures = true
 //        addMarker()
+//        self.mapView.camera = GMSCameraPosition(target: coordinate, zoom: 17, bearing: 0, viewingAngle: 0)
+//
 //        locationManager.requestLocation()
     }
     

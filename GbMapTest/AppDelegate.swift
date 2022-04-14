@@ -16,6 +16,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       }
     }
     var appCoordinate: AppCoordinator?
+    var notificationManager = NotificationManager.instance
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
@@ -31,16 +32,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         window?.rootViewController = navigationController
         window?.makeKeyAndVisible()
         
+        notificationManager.notificationCenter()
+        
         return true
     }
     
     
     func applicationWillResignActive(_ application: UIApplication) {
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [self] in
             UIView.animate(withDuration: 1) {
                 self.window?.alpha = 0.2
             }
+            self.notificationManager.scheduleNotification()
         }
+        
     }
     
     func applicationDidBecomeActive(_ application: UIApplication) {
@@ -48,9 +53,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             UIView.animate(withDuration: 1) {
                 self.window?.alpha = 1
             }
-        }    }
-
-
+        }
+        notificationManager.refreshBadgeNumber(badge: 0)
+    }
 
 }
 

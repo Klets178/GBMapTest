@@ -8,6 +8,12 @@
 import UIKit
 import UserNotifications
 
+struct ModelNotificationManager {
+    let title: String
+    let subtitle: String
+    let body: String
+    let badge: Int
+}
 
 class NotificationManager {
     
@@ -30,8 +36,12 @@ class NotificationManager {
         
         DispatchQueue.main.async {
             let badge = UIApplication.shared.applicationIconBadgeNumber + 1
-        
-            let content = self.makeNotificationContent(badge: badge , identifier: "timeAlarm")
+            let model = ModelNotificationManager(title: "GPMap",
+                                                 subtitle: "Уже прошло 10 сек",
+                                                 body: "Улыбаемся и машем!",
+                                                 badge: badge)
+            
+            let content = self.makeNotificationContent(model: model, identifier: "timeAlarm")
             let trigger = self.makeIntervalNotificatioTrigger(setTime: 10)
             
             self.sendNotificatioRequest(identifier: "timeAlarm", content: content, trigger: trigger)
@@ -39,13 +49,15 @@ class NotificationManager {
         
     }
       
-    func makeNotificationContent(badge: Int, identifier: String) -> UNNotificationContent {
+    func makeNotificationContent(model: ModelNotificationManager, identifier: String) -> UNNotificationContent {
         let content = UNMutableNotificationContent()
         
-        content.title = "GPMap"
-        content.subtitle = "Уже прошло 10 сек"
-        content.body = "Улыбаемся и машем!"
-        content.badge = NSNumber(value: badge)
+        content.title = model.title
+        content.subtitle = model.subtitle
+        content.body = model.body
+        if model.badge > 0 {
+            content.badge = NSNumber(value: model.badge)
+        }
         content.categoryIdentifier = identifier
         content.sound = UNNotificationSound.default
         
@@ -71,5 +83,26 @@ class NotificationManager {
     func refreshBadgeNumber(badge: Int) {
             UIApplication.shared.applicationIconBadgeNumber = badge
     }
+    
+    func checkNotificationCenter(completion: @escaping (Bool) -> Void) {
+        var isNotification = false
+        
+        let center = UNUserNotificationCenter.current()
+        
+        center.getNotificationSettings { (settings) in
+            
+            if settings.authorizationStatus == .authorized {
+                print("Разрешение есть")
+                isNotification = true
+            }
+        }
+        DispatchQueue.main.async {
+            completion(isNotification)
+        }
+        
+    }
+    
+
+        
     
 }

@@ -14,10 +14,13 @@ class LoginController: UIViewController {
 
     var autoCompletionPossibilities = [ "mail.ru", "yandex.ru", "google.com" ]
 
+    var notificationManager = NotificationManager.instance
     
     var loginViewModel: LoginViewModel?
 
     var onLogin: ((_ login: String, _ passord: String) -> Bool)?
+    
+    let userDefaults = UserDefaults.standard
     
 //    var cancellable = Set<AnyCancellable>()
 //    let passwordPublisher = PassthroughSubject<Bool, Never>()
@@ -111,8 +114,24 @@ class LoginController: UIViewController {
                 
         passwordViewButtonTap()
         passwordViewSecureTextEntry()
+        
+        checkNotificationCenter()
+
     }
     
+    
+    func checkNotificationCenter() {
+        notificationManager.checkNotificationCenter( completion: { [self] res in
+            var countRun: Int = userDefaults.object(forKey: "countRun") as? Int ?? 0
+            countRun = countRun + 1
+            print("countRun",countRun)
+            if (!res && (countRun > 3)) {
+                MesssageView.instance.goSettings(view: self)
+            }
+            if countRun > 3 { countRun = 0 } //  что-бы не зашкалило если разрешение есть
+            userDefaults.set((countRun), forKey: "countRun")
+        })
+    }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)

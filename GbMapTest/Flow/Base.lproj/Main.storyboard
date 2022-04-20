@@ -58,6 +58,18 @@
                                     </button>
                                 </subviews>
                             </stackView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Rif-zP-2NE" customClass="RoudingEdgesButton" customModule="GbMapTest" customModuleProvider="target">
+                                <rect key="frame" x="322" y="595" width="62" height="62"/>
+                                <color key="backgroundColor" systemColor="systemMintColor"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" secondItem="Rif-zP-2NE" secondAttribute="height" id="e3q-GM-zIz"/>
+                                </constraints>
+                                <state key="normal" title="Button"/>
+                                <buttonConfiguration key="configuration" style="plain" title="Photo"/>
+                                <connections>
+                                    <action selector="takePicture:" destination="BYZ-38-t0r" eventType="touchUpInside" id="aJG-cG-eEk"/>
+                                </connections>
+                            </button>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text=" Загрузка ..." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="viW-Ol-fjz" customClass="RoudingEdgesLabel" customModule="GbMapTest" customModuleProvider="target">
                                 <rect key="frame" x="30" y="54" width="320" height="30"/>
                                 <color key="backgroundColor" systemColor="systemGray2Color"/>
@@ -81,8 +93,10 @@
                         <constraints>
                             <constraint firstItem="UY1-Bd-m5C" firstAttribute="trailing" secondItem="UaR-Sq-5wF" secondAttribute="trailing" constant="32" id="2sl-a2-oel"/>
                             <constraint firstItem="evq-ke-pbi" firstAttribute="top" secondItem="UY1-Bd-m5C" secondAttribute="top" id="Ctd-jU-CkF"/>
+                            <constraint firstItem="86R-0e-df1" firstAttribute="top" secondItem="Rif-zP-2NE" secondAttribute="bottom" constant="40" id="O3r-Fu-bDe"/>
                             <constraint firstItem="UY1-Bd-m5C" firstAttribute="bottom" secondItem="evq-ke-pbi" secondAttribute="bottom" id="OLl-bV-eo6"/>
                             <constraint firstItem="UaR-Sq-5wF" firstAttribute="centerY" secondItem="viW-Ol-fjz" secondAttribute="centerY" id="RfB-qT-cim"/>
+                            <constraint firstItem="Rif-zP-2NE" firstAttribute="centerX" secondItem="86R-0e-df1" secondAttribute="centerX" id="U7k-lx-U1a"/>
                             <constraint firstItem="viW-Ol-fjz" firstAttribute="top" secondItem="UY1-Bd-m5C" secondAttribute="top" constant="10" id="VhX-7O-fhG"/>
                             <constraint firstItem="UY1-Bd-m5C" firstAttribute="bottom" secondItem="JUl-IT-oEn" secondAttribute="bottom" constant="32" id="YsK-Cq-IFx"/>
                             <constraint firstItem="viW-Ol-fjz" firstAttribute="leading" secondItem="UY1-Bd-m5C" secondAttribute="leading" constant="30" id="a5k-bk-LPZ"/>
@@ -366,7 +380,7 @@
                                                                 </constraints>
                                                                 <imageReference key="image" image="lock.fill" catalog="system" symbolScale="large"/>
                                                             </imageView>
-                                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Password" textAlignment="natural" clearsOnBeginEditing="YES" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="VFI-tJ-FTb" userLabel="passwordField">
+                                                            <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Password" textAlignment="natural" adjustsFontSizeToFit="NO" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="VFI-tJ-FTb" userLabel="passwordField">
                                                                 <rect key="frame" x="32" y="0.0" width="163" height="34"/>
                                                                 <color key="backgroundColor" systemColor="systemGray6Color"/>
                                                                 <accessibility key="accessibilityConfiguration" label="passwordField"/>
@@ -425,10 +439,8 @@
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="trailing" secondItem="qLB-2z-UlA" secondAttribute="trailing" constant="90.5" id="232-xz-6MO"/>
-                                    <constraint firstItem="FnD-HX-Q9M" firstAttribute="top" secondItem="mUq-Sd-XLF" secondAttribute="top" constant="20" id="8TQ-yt-FXH"/>
                                     <constraint firstItem="FnD-HX-Q9M" firstAttribute="centerX" secondItem="qLB-2z-UlA" secondAttribute="centerX" id="GY4-tZ-WZM"/>
                                     <constraint firstAttribute="bottom" secondItem="FnD-HX-Q9M" secondAttribute="bottom" constant="685.5" id="KW1-8W-CQk"/>
-                                    <constraint firstItem="FnD-HX-Q9M" firstAttribute="leading" secondItem="mUq-Sd-XLF" secondAttribute="leading" constant="157.5" id="Pjc-fi-a4U"/>
                                     <constraint firstItem="qLB-2z-UlA" firstAttribute="centerY" secondItem="si4-1Q-F15" secondAttribute="centerY" constant="70" id="TPZ-JT-Lrh"/>
                                     <constraint firstItem="yrG-DA-QZO" firstAttribute="firstBaseline" secondItem="FnD-HX-Q9M" secondAttribute="baseline" constant="20" id="UbI-Y0-9CN"/>
                                     <constraint firstItem="yrG-DA-QZO" firstAttribute="centerX" secondItem="FnD-HX-Q9M" secondAttribute="centerX" id="Vrk-sL-8ah"/>
@@ -481,6 +493,9 @@
         </systemColor>
         <systemColor name="systemGreenColor">
             <color red="0.20392156862745098" green="0.7803921568627451" blue="0.34901960784313724" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </systemColor>
+        <systemColor name="systemMintColor">
+            <color red="0.0" green="0.7803921568627451" blue="0.74509803921568629" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemOrangeColor">
             <color red="1" green="0.58431372549019611" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

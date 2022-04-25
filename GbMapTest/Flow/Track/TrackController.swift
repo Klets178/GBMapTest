@@ -10,7 +10,9 @@ import GoogleMaps
 import CoreLocation
 import RealmSwift
 
-class ViewController: UIViewController {
+class TrackController: UIViewController {
+    
+    var trackviewModel: TrackViewModel?
     
     var coordinate = CLLocationCoordinate2D(latitude: 55.753215, longitude: 37.622504)
     var marker: GMSMarker?
@@ -79,7 +81,7 @@ class ViewController: UIViewController {
     
 //        configureBackround()
         
-        print("􀘰􀘰 realm = \n", Realm.Configuration.defaultConfiguration.fileURL!, "\n 􀘰􀘰")
+//        print("􀘰􀘰 realm = \n", Realm.Configuration.defaultConfiguration.fileURL!, "\n 􀘰􀘰")
         ViewModel.instance.deleteAllRealm()
         
         configureLacationManager()
@@ -211,7 +213,7 @@ class ViewController: UIViewController {
     
 }
 
-extension ViewController: GMSMapViewDelegate {
+extension TrackController: GMSMapViewDelegate {
     func mapView(_ mapView: GMSMapView, didTapAt coordinate: CLLocationCoordinate2D) {
 //        print("coordinate=",coordinate)
         if let manualMarker = manualMarker {
@@ -224,7 +226,7 @@ extension ViewController: GMSMapViewDelegate {
     }
 }
 
-extension ViewController: CLLocationManagerDelegate {
+extension TrackController: CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         // Берём последнюю точку из полученного набора
         guard let location = locations.last else { return } // Добавляем её в путь маршрута

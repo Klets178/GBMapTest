@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		6342E36227EE46FA0030C497 /* RegistrationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6342E36127EE46FA0030C497 /* RegistrationController.swift */; };
 		6342E36427EE47270030C497 /* RegistrationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6342E36327EE47270030C497 /* RegistrationViewModel.swift */; };
+		6342E36827F2F7F70030C497 /* RoudingEdges.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6342E36727F2F7F70030C497 /* RoudingEdges.swift */; };
+		6342E36A27F301FB0030C497 /* Reachability.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6342E36927F301FB0030C497 /* Reachability.swift */; };
+		6342E37427FA172A0030C497 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6342E37327FA172A0030C497 /* LocationManager.swift */; };
 		639CD7F727EB60BF0036AC21 /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639CD7F627EB60BF0036AC21 /* MessageView.swift */; };
 		639CD7FC27EBB6400036AC21 /* LoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639CD7FB27EBB6400036AC21 /* LoginController.swift */; };
 		639CD7FE27EBB6740036AC21 /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639CD7FD27EBB6740036AC21 /* LoginViewModel.swift */; };
@@ -29,6 +32,9 @@
 		2C92647460196FFB2474691A /* Pods-GbMapTest.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GbMapTest.release.xcconfig"; path = "Target Support Files/Pods-GbMapTest/Pods-GbMapTest.release.xcconfig"; sourceTree = "<group>"; };
 		6342E36127EE46FA0030C497 /* RegistrationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationController.swift; sourceTree = "<group>"; };
 		6342E36327EE47270030C497 /* RegistrationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewModel.swift; sourceTree = "<group>"; };
+		6342E36727F2F7F70030C497 /* RoudingEdges.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RoudingEdges.swift; sourceTree = "<group>"; };
+		6342E36927F301FB0030C497 /* Reachability.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Reachability.swift; sourceTree = "<group>"; };
+		6342E37327FA172A0030C497 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		639CD7F627EB60BF0036AC21 /* MessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
 		639CD7FB27EBB6400036AC21 /* LoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginController.swift; sourceTree = "<group>"; };
 		639CD7FD27EBB6740036AC21 /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
@@ -90,6 +96,8 @@
 		639CD7F927EBABFE0036AC21 /* Flow */ = {
 			isa = PBXGroup;
 			children = (
+				6342E36727F2F7F70030C497 /* RoudingEdges.swift */,
+				6342E36927F301FB0030C497 /* Reachability.swift */,
 				639CD7FF27EBB8D30036AC21 /* Track */,
 				6342E36027EE46A00030C497 /* Registration */,
 				639CD7FA27EBB4860036AC21 /* Login */,
@@ -112,6 +120,7 @@
 			isa = PBXGroup;
 			children = (
 				63B66E7827D7BA9300E4F385 /* TrackController.swift */,
+				6342E37327FA172A0030C497 /* LocationManager.swift */,
 				639CD80027EBB94D0036AC21 /* TrackViewModel.swift */,
 			);
 			path = Track;
@@ -301,13 +310,16 @@
 			files = (
 				639CD80627EC5DD30036AC21 /* AppCoordinator.swift in Sources */,
 				6342E36427EE47270030C497 /* RegistrationViewModel.swift in Sources */,
+				6342E37427FA172A0030C497 /* LocationManager.swift in Sources */,
 				63E9731127EA59FA0073A584 /* ViewModel.swift in Sources */,
 				63B66E7927D7BA9300E4F385 /* TrackController.swift in Sources */,
 				639CD80427EC5CAF0036AC21 /* ProtocolCoordinator.swift in Sources */,
 				63B66E7527D7BA9300E4F385 /* AppDelegate.swift in Sources */,
 				63E9730F27EA1A520073A584 /* RealmWork.swift in Sources */,
 				6342E36227EE46FA0030C497 /* RegistrationController.swift in Sources */,
+				6342E36A27F301FB0030C497 /* Reachability.swift in Sources */,
 				639CD7F727EB60BF0036AC21 /* MessageView.swift in Sources */,
+				6342E36827F2F7F70030C497 /* RoudingEdges.swift in Sources */,
 				639CD7FE27EBB6740036AC21 /* LoginViewModel.swift in Sources */,
 				639CD7FC27EBB6400036AC21 /* LoginController.swift in Sources */,
 				639CD80127EBB94D0036AC21 /* TrackViewModel.swift in Sources */,
@@ -459,7 +471,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = 8C3TRV5R24;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GbMapTest/Info.plist;
@@ -490,7 +502,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = 8C3TRV5R24;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = GbMapTest/Info.plist;

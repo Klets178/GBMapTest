@@ -8,7 +8,7 @@
 import UIKit
 
 class MesssageView: NSObject {
-static let instance = MesssageView()
+    static let instance = MesssageView()
 
     func alertMain(view: UIViewController, title: String, message: String = "Не известная ошибка!") {
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)

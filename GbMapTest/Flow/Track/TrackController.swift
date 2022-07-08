@@ -9,36 +9,48 @@ import UIKit
 import GoogleMaps
 import CoreLocation
 import RealmSwift
+import RxSwift
+import RxCocoa
 
 class TrackController: UIViewController {
     
     var trackviewModel: TrackViewModel?
     
     var coordinate = CLLocationCoordinate2D(latitude: 55.753215, longitude: 37.622504)
+   
+    let locationManager = LocationManager.instance
+    
+    let disposeBag = DisposeBag()
+    
     var marker: GMSMarker?
     var manualMarker: GMSMarker?
-    var locationManager: CLLocationManager?
-    var geoCoder: CLGeocoder?
+    var photoMarker = [GMSMarker?]()
+        
+//    var locationManager: CLLocationManager?
+    
+//    var geoCoder: CLGeocoder?
     
     var route = GMSPolyline()
     var routePath = GMSMutablePath()
     
-//    var timer: Timer?
-//    var backgroundTask: UIBackgroundTaskIdentifier?
+    let distantionRealy = BehaviorSubject<Double>(value: 0.0)
+//    var distantion = 0.0
     
-    var distantion = 0.0
-    
-    var isTracking = false {
-        willSet {
-            if newValue {
-                ledTrack.image = UIImage(systemName: "xmark.circle.fill")
-                ledTrack.tintColor = .red
-            } else {
-                ledTrack.image = UIImage(systemName: "checkmark.circle.fill")
-                ledTrack.tintColor = .blue
+    let isTracking  = BehaviorRelay<Bool>(value: false)
 
-            }
-        }
+    @IBAction func takePicture(_ sender: UIButton) {
+        // Проверка, поддерживает ли устройство камеру
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else { return }
+        // Создаём контроллер и настраиваем его
+        let imagePickerController = UIImagePickerController()
+        // Источник изображений: камера
+        imagePickerController.sourceType = .camera
+        // Изображение можно редактировать
+        imagePickerController.allowsEditing = true
+        imagePickerController.delegate = self
+        // Показываем контроллер
+        present(imagePickerController, animated: true)
+    
     }
     
     @IBOutlet weak var ledTrack: UIImageView!
@@ -48,29 +60,33 @@ class TrackController: UIViewController {
     @IBOutlet weak var mapView: GMSMapView!
     
     @IBAction func didTapEndTrackButton(_ sender: Any) {
-        locationManager?.stopUpdatingLocation()
+        locationManager.stopUpdatingLocation()
         if routePath.count() > 0 {
             ViewModel.instance.deleteAllRealm()
             ViewModel.instance.saveAllRealm(routePath: routePath)
+            ViewModel.instance.saveMarkerRealm(marker: photoMarker)
+            removePictureMarker()
             initTrack()
-            isTracking = false
+            isTracking.accept( false )
         }
 
     }
     
     @IBAction func didTapNewTrackButton(_ sender: UIButton) {
-        locationManager?.startUpdatingLocation()
+        locationManager.startUpdatingLocation()
         ViewModel.instance.deleteAllRealm()
         initTrack()
-        isTracking = true
+        isTracking.accept( true )
     }
     
     @IBAction func didTapViewTrackButton(_ sender: UIButton) {
-        if isTracking {
+        if isTracking.value {
             MesssageView.instance.alertMain(view: self, title: "Attention", message: "Остановлена запись трека!")
-            locationManager?.stopUpdatingLocation()
-            isTracking = false
+            locationManager.stopUpdatingLocation()
+            isTracking.accept( false )
         }
+        viewPhotoMarker()
+        viewTrack()
         viewAllTrack(routePath: ViewModel.instance.readAllRealm())
         
     }
@@ -82,11 +98,17 @@ class TrackController: UIViewController {
 //        configureBackround()
         
 //        print("􀘰􀘰 realm = \n", Realm.Configuration.defaultConfiguration.fileURL!, "\n 􀘰􀘰")
+        
         ViewModel.instance.deleteAllRealm()
         
-        configureLacationManager()
         configureMap()
+        configureLocationManager()
+        
+        subscriptionLocationManager()
 
+        isTrackingObservable()
+        
+        setDistantionRelay()
         
     }
 
@@ -94,21 +116,11 @@ class TrackController: UIViewController {
         super.viewWillAppear(animated)
         mapView.settings.zoomGestures = true
 //        addMarker()
+//        self.mapView.camera = GMSCameraPosition(target: coordinate, zoom: 17, bearing: 0, viewingAngle: 0)
+//
+//        locationManager.requestLocation()
     }
     
-//    func configureBackround() {
-//        backgroundTask = UIApplication.shared.beginBackgroundTask { [weak self] in
-//            guard let strongSelf = self else { return }
-//
-//            UIApplication.shared.endBackgroundTask(strongSelf.backgroundTask!)
-//            strongSelf.backgroundTask = UIBackgroundTaskIdentifier.invalid
-//        }
-//
-//        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
-//            print(Date())
-//        })
-//
-//    }
     
     
     func initTrack() {
@@ -120,25 +132,10 @@ class TrackController: UIViewController {
         routePath = GMSMutablePath()
         // Добавляем новую линию на карту
 //        route.map = mapView
+        distantionRealy.onNext(-1)
     }
     
-    func configureLacationManager(){
-        locationManager = CLLocationManager()
-        locationManager?.activityType = .automotiveNavigation
-        locationManager?.delegate = self
-        
-//        locationManager?.distanceFilter = 20
-        locationManager?.desiredAccuracy = kCLLocationAccuracyBest
-        
-        locationManager?.allowsBackgroundLocationUpdates = true
-        locationManager?.pausesLocationUpdatesAutomatically = false
-        locationManager?.startMonitoringSignificantLocationChanges()
-        locationManager?.requestAlwaysAuthorization()
-//        locationManager?.requestWhenInUseAuthorization()
-        
-        locationManager?.requestLocation()
-        
-    }
+
     
     func addMarker(newCoordinate: CLLocationCoordinate2D) {
         marker = GMSMarker(position: newCoordinate)
@@ -150,9 +147,44 @@ class TrackController: UIViewController {
 
     }
     
+    func addPictureMarker(image: UIImage) {
+       
+        guard let position = marker?.position,
+              let frameImage = UIImage(named: "picPointbl")
+        else {return}
+        
+        photoMarker.append(GMSMarker(position: position))
+        guard let last = photoMarker.last else {return}
+        
+        let imageView = drawImageToframeImage(image: image, frameImage: frameImage)
+        
+        last?.icon = imageView
+        last?.map = mapView
+    }
+    
+    func removePictureMarker() {
+        photoMarker.forEach({ body in
+            body?.map = nil
+        })
+        photoMarker.removeAll()
+    }
+    
     func removeMarker() {
         marker?.map = nil
         marker = nil
+    }
+    
+    
+    func viewPhotoMarker() {
+        removePictureMarker()
+        
+        photoMarker = ViewModel.instance.readMarkerRealm()
+        photoMarker.forEach { val in
+            let img = val?.icon?.imageResized(to: CGSize(width: 45, height: 57))
+            val?.icon = img
+            val?.map = mapView
+        }
+        
     }
     
     func viewAllTrack(routePath: GMSMutablePath) {
@@ -174,9 +206,15 @@ class TrackController: UIViewController {
         route.map = mapView
         
         let pathLen = GMSGeometryLength(routePath)
-        distantion = distantion + round(pathLen)
+//        distantion = distantion + round(pathLen)
         
-        distantionLabek.text = "Растояние: \(distantion) м"
+//        distantionLabek.text = "Растояние: \(distantion) м"
+        
+//        distantionRealy.accept(round(pathLen))
+        distantionRealy
+            .asObserver()
+            .onNext(round(pathLen))
+ 
     }
     
     func configureMap() {
@@ -190,26 +228,32 @@ class TrackController: UIViewController {
         mapView.delegate = self
     }
     
-    func myAdd(newCoordinate: CLLocationCoordinate2D) {
-        let path = GMSMutablePath()
-        path.add(coordinate)
-        path.add(newCoordinate)
-        let polyline = GMSPolyline(path: path)
-        polyline.strokeColor = .red
-        polyline.strokeWidth = 3.0
-        polyline.geodesic = true
-        polyline.map = mapView
-        
-        let pathLen = GMSGeometryLength(path)
-        distantion = distantion + round(pathLen)
-        
-        distantionLabek.text = "Растояние: \(distantion) м"
-
-        print("distantion = \(distantion)км")
-        
-//        coordinate = newCoordinate
+    
+    
+    func configureLocationManager() {
+        locationManager
+            .location
+            .asObservable()
+            .bind { [weak self] (location) in
+                guard let location = location else { return }
+                self?.routePath.add(location.coordinate)
+                self?.route.path = self?.routePath
+                let position = GMSCameraPosition.camera(withTarget: location.coordinate, zoom: 17)
+                self?.mapView.animate(to: position)
+                self?.removeMarker()
+                self?.addMarker(newCoordinate: location.coordinate)
+                self?.viewTrack()
+            }
+            .disposed(by: disposeBag)
     }
     
+    
+    func subscriptionLocationManager() {
+        locationManager
+            .location
+            .subscribe { (event) in print("location=", event) }
+            .disposed(by: disposeBag)
+    }
     
 }
 
@@ -226,29 +270,70 @@ extension TrackController: GMSMapViewDelegate {
     }
 }
 
-extension TrackController: CLLocationManagerDelegate {
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        // Берём последнюю точку из полученного набора
-        guard let location = locations.last else { return } // Добавляем её в путь маршрута
-
-        routePath.add(location.coordinate)
-        // Обновляем путь у линии маршрута путём повторного присвоения
-        route.path = routePath
-        // Чтобы наблюдать за движением, установим камеру на только что добавленную точку
-        
-        print("routePath =", routePath.count())
-        let position = GMSCameraPosition.camera(withTarget: location.coordinate, zoom: 15)
-        mapView.animate(to: position)
-        
-        viewTrack()
-        removeMarker()
-        addMarker(newCoordinate: location.coordinate)
-        
-        coordinate = location.coordinate
+extension TrackController {
+    func isTrackingObservable() {
+        isTracking
+            .asObservable()
+            .bind { [weak self] (bool) in
+                guard let self = self else { return }
+                if bool {
+                    self.ledTrack.image = UIImage(systemName: "xmark.circle.fill")
+                    self.ledTrack.tintColor = .red
+                } else {
+                    self.ledTrack.image = UIImage(systemName: "checkmark.circle.fill")
+                    self.ledTrack.tintColor = .blue
+                }
+            }
+            .disposed(by: disposeBag)
     }
     
-    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print(error)
+    func setDistantionRelay() {
+        distantionRealy
+            .asObservable()
+        
+            .scan(0.0) { val1, val2 in
+                if val2 == -1 { return 0 }
+                else {return val1 + val2}
+            }
+//            .compactMap{ $0.flatMap(String.init) }
+            .bind(onNext: { self.distantionLabek.text = "Растояние: \($0) м"})
+            .disposed(by: disposeBag)
     }
     
 }
+
+extension TrackController:  UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+
+    func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+        // Если нажали на кнопку Отмена, то UIImagePickerController надо закрыть
+        picker.dismiss(animated: true)
+    }
+    
+    
+    func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+
+        // Закрываем UIImagePickerController
+        picker.dismiss(animated: true) { [weak self] in
+            // После того, как он закроется, извлечём изображение
+            guard let image = self?.extractImage(from: info) else { return }
+            // Если оно будет извлечено, выполним действие на его получение
+            
+            self?.addPictureMarker(image: image)
+            
+        }
+    }
+    
+    // Метод, извлекающий изображение
+    private func extractImage(from info: [UIImagePickerController.InfoKey: Any]) -> UIImage? {
+        // Пытаемся извлечь отредактированное изображение
+        if let image = info[UIImagePickerController.InfoKey.editedImage] as? UIImage {
+            return image
+        // Пытаемся извлечь оригинальное
+        } else
+            if let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
+                return image
+            } else { return nil }
+    }
+    
+}
+

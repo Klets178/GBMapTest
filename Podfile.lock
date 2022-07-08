@@ -9,22 +9,36 @@ PODS:
   - Realm/Headers (10.24.0)
   - RealmSwift (10.24.0):
     - Realm (= 10.24.0)
+  - RxCocoa (6.5.0):
+    - RxRelay (= 6.5.0)
+    - RxSwift (= 6.5.0)
+  - RxRelay (6.5.0):
+    - RxSwift (= 6.5.0)
+  - RxSwift (6.5.0)
 
 DEPENDENCIES:
   - GoogleMaps (= 6.0.1)
   - RealmSwift
+  - RxCocoa
+  - RxSwift
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - GoogleMaps
     - Realm
     - RealmSwift
+    - RxCocoa
+    - RxRelay
+    - RxSwift
 
 SPEC CHECKSUMS:
   GoogleMaps: c213fc2334b7374144cede914da779b99be0ab74
   Realm: 5d6f84e3f65d4efa204d46b461e5bbbbbbf84c6c
   RealmSwift: 9022754b93fad23e1ffc950c93574c5b7899bd51
+  RxCocoa: 94f817b71c07517321eb4f9ad299112ca8af743b
+  RxRelay: 1de1523e604c72b6c68feadedd1af3b1b4d0ecbd
+  RxSwift: 5710a9e6b17f3c3d6e40d6e559b9fa1e813b2ef8
 
-PODFILE CHECKSUM: aff4a8dae37c2007aa4cd350e1246956b3bf0688
+PODFILE CHECKSUM: bcc5582b0da46f1ec3df1aea00dc0ad9e1411914
 
 COCOAPODS: 1.11.2
